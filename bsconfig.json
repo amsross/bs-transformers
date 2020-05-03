@@ -1,7 +1,6 @@
 {
   "bs-dependencies": ["bs-bastet"],
-  "name": "bs-transformers",
-  "namespace": true,
+  "name": "@amsross/bs-transformers",
   "package-specs": {"in-source": false, "module": "commonjs"},
   "refmt": 3,
   "sources": {"dir": "src", "subdirs": true},
