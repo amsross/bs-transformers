@@ -31,8 +31,6 @@ module OptionT:
     type m('a) = M.t('a);
     type t('a) = m(option('a));
 
-    Js.Console.log(__MODULE__);
-
     module D: Interface.MONAD with type t('a) = t('a) = {
       type nonrec t('a) = t('a);
 
