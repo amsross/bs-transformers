@@ -90,6 +90,8 @@ module ReaderT = (T: Interface.TYPE, M: Interface.MONAD) => {
   include (D: Interface.MONAD with type t('a) := t('a));
 
   let ask: unit => t(T.t) = (_, s) => M.pure(s);
+
+  let runWith: (T.t, t('a)) => m('a) = (e, s) => s(e);
 };
 
 module OptionT:

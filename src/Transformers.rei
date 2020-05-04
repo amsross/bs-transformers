@@ -34,6 +34,7 @@ module ReaderT:
     include T with type m('a) = M.t('a) and type t('a) = T.t => M.t('a);
 
     let ask: unit => t(T.t);
+    let runWith: (T.t, t('a)) => m('a);
   };
 
 module OptionT:
