@@ -17,6 +17,17 @@ module type T = {
   };
 };
 
+module StateT:
+  (T: BsBastet.Interface.TYPE, M: BsBastet.Interface.MONAD) =>
+   {
+    include
+      T with type m('a) = M.t('a) and type t('a) = T.t => M.t((T.t, 'a));
+
+    let get: t(T.t);
+    let put: T.t => t(unit);
+    let modify: (T.t => T.t) => t(T.t);
+  };
+
 module OptionT:
   (M: BsBastet.Interface.MONAD) =>
    T with type m('a) = M.t('a) and type t('a) = M.t(option('a));
