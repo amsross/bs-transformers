@@ -28,6 +28,14 @@ module StateT:
     let modify: (T.t => T.t) => t(T.t);
   };
 
+module ReaderT:
+  (T: BsBastet.Interface.TYPE, M: BsBastet.Interface.MONAD) =>
+   {
+    include T with type m('a) = M.t('a) and type t('a) = T.t => M.t('a);
+
+    let ask: unit => t(T.t);
+  };
+
 module OptionT:
   (M: BsBastet.Interface.MONAD) =>
    T with type m('a) = M.t('a) and type t('a) = M.t(option('a));
