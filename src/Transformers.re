@@ -59,6 +59,13 @@ module StateT = (T: Interface.TYPE, M: Interface.MONAD) => {
       let s' = f(s);
       M.pure((s', s'));
     };
+
+  let runWith: (T.t, t('a)) => m(('a, T.t)) =
+    (e, s) => s(e) |> M.map(((a, s)) => (s, a));
+  let evalWith: (T.t, t('a)) => m('a) =
+    (e, s) => runWith(e, s) |> M.map(fst);
+  let execWith: (T.t, t('a)) => m(T.t) =
+    (e, s) => runWith(e, s) |> M.map(snd);
 };
 
 module ReaderT = (T: Interface.TYPE, M: Interface.MONAD) => {

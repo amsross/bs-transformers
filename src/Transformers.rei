@@ -26,6 +26,10 @@ module StateT:
     let get: t(T.t);
     let put: T.t => t(unit);
     let modify: (T.t => T.t) => t(T.t);
+
+    let runWith: (T.t, t('a)) => m(('a, T.t));
+    let evalWith: (T.t, t('a)) => m('a);
+    let execWith: (T.t, t('a)) => m(T.t);
   };
 
 module ReaderT:
