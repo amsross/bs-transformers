@@ -101,6 +101,40 @@ module ReaderT = (T: Interface.TYPE, M: Interface.MONAD) => {
   let runWith: (T.t, t('a)) => m('a) = (e, s) => s(e);
 };
 
+module WriterT = (T: Interface.TYPE, M: Interface.MONAD) => {
+  type m('a) = M.t('a);
+  type t('a) = T.t => m('a);
+
+  module D: Interface.MONAD with type t('a) = t('a) = {
+    type nonrec t('a) = t('a);
+
+    let pure: 'a. 'a => t('a) = (a, _) => M.pure(a);
+
+    let flat_map: 'a 'b. (t('a), 'a => t('b)) => t('b) =
+      (old, aToState, s) => {
+        let m = old(s);
+
+        M.flat_map(m, a => aToState(a, s));
+      };
+
+    let map: 'a 'b. ('a => 'b, t('a)) => t('b) =
+      (f, old, s) => old(s) |> M.map(a => f(a));
+
+    let apply: 'a 'b. (t('a => 'b), t('a)) => t('b) =
+      (mf, m) => flat_map(mf, f => map(f, m));
+  };
+
+  module Infix = Infix.Monad(D);
+  let lift: 'a. M.t('a) => D.t('a) = (a, _) => M.map(a => a, a);
+
+  include (D: Interface.MONAD with type t('a) := t('a));
+
+  let tell: T.t => t(T.t) = (e, _) => M.pure(e);
+  let runWith: (T.t, t('a)) => m(('a, T.t)) =
+    (e, s) => s(e) |> M.map(a => (a, e));
+  let execWith: (T.t, t('a)) => m(T.t) = (e, s) => s(e) |> M.map(_ => e);
+};
+
 module OptionT:
   (M: Interface.MONAD) =>
    T with type m('a) = M.t('a) and type t('a) = M.t(option('a)) =

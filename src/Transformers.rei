@@ -41,6 +41,16 @@ module ReaderT:
     let runWith: (T.t, t('a)) => m('a);
   };
 
+module WriterT:
+  (T: BsBastet.Interface.TYPE, M: BsBastet.Interface.MONAD) =>
+   {
+    include T with type m('a) = M.t('a) and type t('a) = T.t => M.t('a);
+
+    let tell: T.t => t(T.t);
+    let runWith: (T.t, t('a)) => m(('a, T.t));
+    let execWith: (T.t, t('a)) => m(T.t);
+  };
+
 module OptionT:
   (M: BsBastet.Interface.MONAD) =>
    T with type m('a) = M.t('a) and type t('a) = M.t(option('a));
