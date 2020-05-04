@@ -59,6 +59,7 @@ module StateT = (T: Interface.TYPE, M: Interface.MONAD) => {
       let s' = f(s);
       M.pure((s', s'));
     };
+  let gets: (T.t => 'a) => t('a) = (f, s) => M.pure((s, f(s)));
 
   let runWith: (T.t, t('a)) => m(('a, T.t)) =
     (e, s) => s(e) |> M.map(((a, s)) => (s, a));

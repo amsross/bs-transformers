@@ -26,6 +26,7 @@ module StateT:
     let get: t(T.t);
     let put: T.t => t(unit);
     let modify: (T.t => T.t) => t(T.t);
+    let gets: (T.t => 'a) => t('a);
 
     let runWith: (T.t, t('a)) => m(('a, T.t));
     let evalWith: (T.t, t('a)) => m('a);
