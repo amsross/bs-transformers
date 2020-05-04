@@ -57,7 +57,12 @@ module OptionT:
 
 module ResultT:
   (T: BsBastet.Interface.TYPE, M: BsBastet.Interface.MONAD) =>
-   T with type m('a) = M.t('a) and type t('a) = M.t(result('a, T.t));
+   {
+    include
+      T with type m('a) = M.t('a) and type t('a) = M.t(result('a, T.t));
+
+    let catch: (T.t => t('a), t('a)) => t('a);
+  };
 
 module ContT:
   (T: BsBastet.Interface.TYPE, M: BsBastet.Interface.MONAD) =>

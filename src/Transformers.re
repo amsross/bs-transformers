@@ -169,39 +169,45 @@ module OptionT:
     include (D: Interface.MONAD with type t('a) := t('a));
   };
 
-module ResultT:
-  (T: Interface.TYPE, M: Interface.MONAD) =>
-   T with type m('a) = M.t('a) and type t('a) = M.t(result('a, T.t)) =
-  (T: Interface.TYPE, M: Interface.MONAD) => {
-    type m('a) = M.t('a);
-    type t('a) = M.t(result('a, T.t));
+module ResultT = (T: Interface.TYPE, M: Interface.MONAD) => {
+  type m('a) = M.t('a);
+  type t('a) = M.t(result('a, T.t));
 
-    module D: Interface.MONAD with type t('a) = t('a) = {
-      type nonrec t('a) = t('a);
+  module D: Interface.MONAD with type t('a) = t('a) = {
+    type nonrec t('a) = t('a);
 
-      let pure: 'a. 'a => t('a) = x => M.pure(Ok(x));
+    let pure: 'a. 'a => t('a) = x => M.pure(Ok(x));
 
-      let flat_map: 'a 'b. (t('a), 'a => t('b)) => t('b) =
-        (m, f) =>
-          M.flat_map(
-            m,
-            fun
-            | Error(_) as err => M.pure(err)
-            | Ok(x) => f(x),
-          );
+    let flat_map: 'a 'b. (t('a), 'a => t('b)) => t('b) =
+      (m, f) =>
+        M.flat_map(
+          m,
+          fun
+          | Error(_) as err => M.pure(err)
+          | Ok(x) => f(x),
+        );
 
-      let map: 'a 'b. ('a => 'b, t('a)) => t('b) =
-        (f, m) => flat_map(m, m => M.pure(Ok(f(m))));
+    let map: 'a 'b. ('a => 'b, t('a)) => t('b) =
+      (f, m) => flat_map(m, m => M.pure(Ok(f(m))));
 
-      let apply: 'a 'b. (t('a => 'b), t('a)) => t('b) =
-        (mf, m) => flat_map(mf, f => map(f, m));
-    };
-
-    module Infix = Infix.Monad(D);
-    let lift: 'a. M.t('a) => D.t('a) = x => M.flat_map(x, D.pure);
-
-    include (D: Interface.MONAD with type t('a) := t('a));
+    let apply: 'a 'b. (t('a => 'b), t('a)) => t('b) =
+      (mf, m) => flat_map(mf, f => map(f, m));
   };
+
+  module Infix = Infix.Monad(D);
+  let lift: 'a. M.t('a) => D.t('a) = x => M.flat_map(x, D.pure);
+
+  include (D: Interface.MONAD with type t('a) := t('a));
+
+  let catch: (T.t => t('a), t('a)) => t('a) =
+    (handler, x) =>
+      M.flat_map(
+        x,
+        fun
+        | Error(e) => handler(e)
+        | x => M.pure(x),
+      );
+};
 
 module ContT:
   (T: Interface.TYPE, M: Interface.MONAD) =>
